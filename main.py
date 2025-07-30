@@ -1,52 +1,47 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from dotenv import load_dotenv
+import os
+
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
-from langchain.chains import LLMChain
-from dotenv import load_dotenv
-from tools import lore_search, inventory_tool
 from langchain.agents import initialize_agent, AgentType
-import os
-import promptTemplate
+from tools import lore_search, inventory_tool
 
- # .env dosyasını yükle
 load_dotenv()
 
-# FastAPI uygulamasını başlat
 app = FastAPI()
 
-# Kullanıcıdan gelen veriyi tanımla
 class ChatInput(BaseModel):
     message: str
 
-
-memory= ConversationBufferMemory(memory_key="chat_history", input_key="input");
-
-prompt= promptTemplate.prompt_template
-
+# LLM modeli
 llm = ChatOpenAI(
-    temperature=0.7, #modelin cevaplarının rastgeleliğini ayarlar
+    temperature=0.7,
     model_name="gpt-4",
     openai_api_key=os.getenv("OPENAI_API_KEY")
 )
-# Kısa süreli bellek
-memory = ConversationBufferMemory(memory_key="chat_history")
 
-# LLM zinciri
-chain = LLMChain(
-    llm=llm,
-    prompt=prompt,
-    memory=memory
-)
+# Kısa süreli hafıza
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
+# Tools (araçlar)
 tools = [lore_search, inventory_tool]
 
+# Okunacak sistem prompt dosyası
+with open("system_prompt.txt", "r", encoding="utf-8") as f:
+    system_prompt = f.read()
+
+# AgentExecutor oluştur
 agent_executor = initialize_agent(
     tools=tools,
     llm=llm,
-    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    agent=AgentType.OPENAI_FUNCTIONS,
+    memory=memory,
     verbose=True,
-    memory=memory
+    agent_kwargs={
+        "system_message": system_prompt
+    }
 )
 
 # Chat endpoint
