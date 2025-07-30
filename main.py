@@ -4,6 +4,8 @@ from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import LLMChain
 from dotenv import load_dotenv
+from tools import lore_search
+from langchain.agents import initialize_agent, AgentType
 import os
 import promptTemplate
 
@@ -37,11 +39,18 @@ chain = LLMChain(
     memory=memory
 )
 
+tools = [lore_search]
+
+agent_executor = initialize_agent(
+    tools=tools,
+    llm=llm,
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    verbose=True,
+    memory=memory
+)
+
 # Chat endpoint
 @app.post("/chat")
 async def chat(input: ChatInput):
-    response = chain.invoke({
-        "input": input.message
-    })
+    response = agent_executor.run(input.message)
     return {"response": response}
-#new comment line
