@@ -25,3 +25,17 @@ def lore_search(query: str) -> str:
     retriever = FakeRetriever()
     docs = retriever.get_relevant_documents(query)
     return "\n".join(doc.page_content for doc in docs)
+
+@tool
+def inventory_tool(query: str) -> str:
+    """
+    Elara'nın mevcut envanterini döndürür.
+    Kullanıcı envanter hakkında soru sorarsa bu araç tetiklenir.
+    """
+    inventory = [
+        "⛓️ Gümüş zincirli kadim bir kolye",
+        "📜 Büyülü yazıtlarla dolu bir parşömen",
+        "🌿 Şifa otlarından yapılmış iksir",
+        "🗡️ Gölge Çeliği'nden yapılmış eski bir hançer"
+    ]
+    return "\n".join(inventory)

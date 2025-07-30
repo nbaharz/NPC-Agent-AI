@@ -4,7 +4,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import LLMChain
 from dotenv import load_dotenv
-from tools import lore_search
+from tools import lore_search, inventory_tool
 from langchain.agents import initialize_agent, AgentType
 import os
 import promptTemplate
@@ -39,7 +39,7 @@ chain = LLMChain(
     memory=memory
 )
 
-tools = [lore_search]
+tools = [lore_search, inventory_tool]
 
 agent_executor = initialize_agent(
     tools=tools,
