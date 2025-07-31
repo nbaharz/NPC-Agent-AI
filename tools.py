@@ -1,20 +1,8 @@
-
 from langchain.tools import tool
-from langchain.schema import Document
+from langchain.vectorstores import FAISS
+from langchain.embeddings import OpenAIEmbeddings
 from langchain.schema.retriever import BaseRetriever
-from typing import List
-
-# Sahte retriever – test amaçlı
-class FakeRetriever(BaseRetriever):
-    def _get_relevant_documents(self, query: str) -> List[Document]:
-        return [
-            Document(page_content="Yasaklı Tapınak, Gölgeler Savaşı’ndan sonra inşa edilmiştir."),
-            Document(page_content="Rüya Krallığı’nın kralı Elenion’dur."),
-        ]
-
-    async def _aget_relevant_documents(self, query: str) -> List[Document]:
-        return self._get_relevant_documents(query)
-
+import os
 
 @tool
 def lore_search(query: str) -> str:
@@ -22,7 +10,9 @@ def lore_search(query: str) -> str:
     Oyun evrenine dair bilgileri döndürür.
     Örnek: 'Yasaklı Tapınak hakkında bilgi ver' gibi sorular için kullanılır.
     """
-    retriever = FakeRetriever()
+    embeddings = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
+    vectorstore = FAISS.load_local("lore_index", embeddings, allow_dangerous_deserialization=True)
+    retriever = vectorstore.as_retriever()
     docs = retriever.get_relevant_documents(query)
     return "\n".join(doc.page_content for doc in docs)
 
