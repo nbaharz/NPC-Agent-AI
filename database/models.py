@@ -1,5 +1,5 @@
 # database/models.py
-from sqlalchemy import Column, String, DateTime, Text
+from sqlalchemy import Column, String, DateTime, Text, Integer, Float
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.sqlite import JSON as SQLITE_JSON
 from sqlalchemy.dialects.postgresql import JSONB
@@ -38,3 +38,26 @@ class LongTermMemory(Base):
     text    = Column(Text, nullable=False)
     tags    = json_column()
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class WorldState(Base):
+    __tablename__ = "world_state"
+    key = Column(String, primary_key=True)
+    value = json_column()
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class Inventory(Base):
+    __tablename__ = "inventory"
+    id = Column(String, primary_key=True)
+    user_id = Column(String, index=True)
+    item_id = Column(String, index=True)
+    qty = Column(Integer, default=1)
+    meta = json_column()
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class Reputation(Base):
+    __tablename__ = "reputation"
+    id = Column(String, primary_key=True)
+    user_id = Column(String, index=True)
+    faction_id = Column(String, index=True)
+    score = Column(Float, default=0.0)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

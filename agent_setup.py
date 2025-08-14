@@ -6,6 +6,8 @@ from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationSummaryMemory
 from tools.tools import inventory_tool
 from tools.lore_search import lore_search_tool
+from tools.world_state_tool import get_world_state_tool, set_world_state_tool, reputation_change_tool
+from tools.inventory_tool import inventory_add_tool, inventory_remove_tool
 
 load_dotenv()
 
@@ -33,7 +35,9 @@ def setup_agent():
         system_prompt = f.read()
 
     # Araçları tanımla
-    tools = [lore_search_tool, inventory_tool]
+    tools = [lore_search_tool, inventory_tool, 
+             get_world_state_tool, set_world_state_tool, 
+             inventory_add_tool, inventory_remove_tool, reputation_change_tool]
 
     # Agent'i başlat
     agent_executor = initialize_agent(

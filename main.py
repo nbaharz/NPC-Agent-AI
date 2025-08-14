@@ -7,12 +7,17 @@ from database import models  # noqa: F401  # tabloların create_all için import
 from api import memory as memory_api
 from pydantic import BaseModel
 from agent_setup import setup_agent  
+from api import world_state as world_api
+
+
 
 # --- DB tablolarını oluştur ---
 Base.metadata.create_all(bind=engine)
 
 # --- FastAPI app ---
 app = FastAPI(title="FRP NPC Agent API")
+ 
+app.include_router(world_api.router, prefix="/api", tags=["world"])
 
 # --- CORS (gerekirse prod'da domain ile sınırla) ---
 app.add_middleware(
