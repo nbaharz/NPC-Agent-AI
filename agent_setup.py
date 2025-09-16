@@ -1,25 +1,25 @@
-### agent_setup.py – Agent oluşturma fonksiyonu
+# agent_setup.py – Agent oluşturma fonksiyonu
 import os
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationSummaryMemory
-from tools.tools import inventory_tool
 from tools.lore_search import lore_search_tool
 from tools.world_state_tool import get_world_state_tool, set_world_state_tool, reputation_change_tool
 from tools.inventory_tool import inventory_add_tool, inventory_remove_tool
+from prompts.promptTemplate import elara_prompt 
 
 load_dotenv()
 
 def setup_agent():
     # LLM modeli
     llm = ChatOpenAI(
-        temperature=0.7, #rastgelelik derecesi
+        temperature=0.7,
         model_name="gpt-4",
         openai_api_key=os.getenv("OPENAI_API_KEY")
     )
 
-    # Hafıza – konuşma özetleriyle birlikte
+    # Hafıza
     memory = ConversationSummaryMemory(
         llm=llm,
         memory_key="chat_history",
@@ -28,16 +28,15 @@ def setup_agent():
 
     if os.path.exists("prompts/elara_summary.txt"):
         with open("elara_summary.txt", "r", encoding="utf-8") as f:
-         memory.buffer = f.read()
+            memory.buffer = f.read()
 
-    # Prompt yükle
-    with open("prompts/system_prompt.txt", "r", encoding="utf-8") as f:
-        system_prompt = f.read()
-
-    # Araçları tanımla
-    tools = [lore_search_tool, inventory_tool, 
-             get_world_state_tool, set_world_state_tool, 
-             inventory_add_tool, inventory_remove_tool, reputation_change_tool]
+    # Araçlar
+    tools = [
+        lore_search_tool,
+        get_world_state_tool, set_world_state_tool,
+        inventory_add_tool, inventory_remove_tool,
+        reputation_change_tool
+    ]
 
     # Agent'i başlat
     agent_executor = initialize_agent(
@@ -47,9 +46,8 @@ def setup_agent():
         memory=memory,
         verbose=True,
         agent_kwargs={
-            "system_message": system_prompt
+            "system_message": elara_prompt.format(chat_history="{chat_history}", input="{input}")
         }
     )
 
     return agent_executor, memory
-

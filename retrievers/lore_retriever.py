@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from typing import List
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -8,14 +7,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 VECTORSTORE_DIR = os.getenv("LORE_VECTORSTORE_DIR", "./vectorstore/lore")
 COLLECTION_NAME = "lore_entries"
 
 def get_embedding_fn():
-    return OpenAIEmbeddings(model="text-embedding-3-small", api_key=os.getenv("OPENAI_API_KEY"))
+    return OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
 
 def build_lore_vectorstore(lore_dir: str = "./data/lore"):
-    """Lore dosyalarını yükle, temizle, chunk'la ve Chroma'ya ekle."""
+    """Lore dosyalarini yükle, temizle, chunk'la ve Chroma'ya ekle."""
     embed_fn = get_embedding_fn()
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
 
@@ -49,17 +49,15 @@ def build_lore_vectorstore(lore_dir: str = "./data/lore"):
         print("[Lore Pipeline] No lore files found.")
 
 def get_lore_vectorstore():
-    """Mevcut vektör deposunu yükle."""
     return Chroma(
         collection_name=COLLECTION_NAME,
         embedding_function=get_embedding_fn(),
         persist_directory=VECTORSTORE_DIR
     )
 
-def search_lore(query: str, k: int = 5, category: str = None):
+def search_lore(query: str, k: int = 5, category: str = None, threshold: float = 0.75):
     vs = get_lore_vectorstore()
 
-    # ✅ Chroma filter formatı: None veya {"where": {...}}
     filter_arg = None
     if category:
         filter_arg = {"where": {"category": category}}
@@ -68,11 +66,11 @@ def search_lore(query: str, k: int = 5, category: str = None):
 
     results = []
     for doc, score in docs_scores:
-        results.append({
-            "text": doc.page_content,
-            "metadata": doc.metadata,
-            "score": float(score)
-        })
+        if float(score) <= threshold:   
+         results.append(...)
+
+
     return results
+
 if __name__ == "__main__":
     build_lore_vectorstore()

@@ -1,11 +1,14 @@
 # database/models.py
-from sqlalchemy import Column, String, DateTime, Text, Integer, Float
+# daha sonra bunlarin her biri ayri .pylar olarak yazilabilir
+from sqlalchemy import Column, String, DateTime, Text, Integer, Float, Enum, ForeignKey, JSON
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.sqlite import JSON as SQLITE_JSON
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.types import TypeDecorator
 from .db_session import Base
 import json
+import enum
 import uuid
 import os
 
@@ -61,3 +64,40 @@ class Reputation(Base):
     faction_id = Column(String, index=True)
     score = Column(Float, default=0.0)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+# Quest models 
+class QuestStatus(str, enum.Enum):
+    locked = "locked"
+    active = "active"
+    completed = "completed"
+    failed = "failed"
+
+class Quest(Base):
+    __tablename__ = "quests"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String, index=True)  # oyuncu/oturum bağlamak için
+    title = Column(String, nullable=False)
+    summary = Column(String, nullable=True)
+    status = Column(Enum(QuestStatus), default=QuestStatus.locked, nullable=False)
+    meta_json = Column(JSON, default=dict)
+
+    steps = relationship("QuestStep", back_populates="quest", order_by="QuestStep.order")
+
+class StepStatus(str, enum.Enum): #step kismina gerek var mi?
+    locked = "locked"
+    active = "active"
+    completed = "completed"
+    failed = "failed"
+
+class QuestStep(Base):
+    __tablename__ = "quest_steps"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quest_id = Column(Integer, ForeignKey("quests.id"), nullable=False, index=True)
+    order = Column(Integer, nullable=False)  # 1,2,3...
+    description = Column(String, nullable=False)
+    status = Column(Enum(StepStatus), default=StepStatus.locked, nullable=False)
+    conditions_json = Column(JSON, default=list)  # ör: [{"type":"has_item","item":"Pendant","qty":1}]
+    rewards_json = Column(JSON, default=list)     # ör: [{"type":"gold","amount":50},{"type":"rep","faction":"village","delta":5}]
+
+    quest = relationship("Quest", back_populates="steps")
