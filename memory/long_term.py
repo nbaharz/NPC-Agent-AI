@@ -6,7 +6,7 @@ from database.models import LongTermMemory
 from retrievers.embeddings import get_embedding_fn
 from langchain_community.vectorstores import Chroma
 
-# Chroma kalıcı dizin
+#--- We should periodically clean the vector store to avoid excessive data growth and potential storage issues.---
 VECTORSTORE_DIR = os.getenv("VECTORSTORE_DIR", "./vectorstore/memory")
 COLLECTION_NAME = "long_term_memory"
 
@@ -54,7 +54,7 @@ def search_long_term_memory(
 ) -> List[Dict[str, Any]]:
     vs = _get_vectorstore()
 
-    # ✅ Chroma filter'ı $and ile yap
+    # Chroma filter'ı $and ile yap
     filter_where = {
         "$and": [
             {"user_id": user_id},
@@ -64,7 +64,7 @@ def search_long_term_memory(
     docs_scores = vs.similarity_search_with_score(
         query,
         k=k,
-        filter={"where": filter_where}   # ✅ "where" ile sar
+        filter={"where": filter_where}  
     )
     results = []
     for doc, score in docs_scores:

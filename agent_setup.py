@@ -12,14 +12,14 @@ from prompts.promptTemplate import elara_prompt
 load_dotenv()
 
 def setup_agent():
-    # LLM modeli
+    # LLM model
     llm = ChatOpenAI(
         temperature=0.7,
         model_name="gpt-4",
         openai_api_key=os.getenv("OPENAI_API_KEY")
     )
 
-    # Hafıza
+    # Memory (can be deleted later)
     memory = ConversationSummaryMemory(
         llm=llm,
         memory_key="chat_history",
@@ -30,7 +30,7 @@ def setup_agent():
         with open("elara_summary.txt", "r", encoding="utf-8") as f:
             memory.buffer = f.read()
 
-    # Araçlar
+    
     tools = [
         lore_search_tool,
         get_world_state_tool, set_world_state_tool,
@@ -38,7 +38,7 @@ def setup_agent():
         reputation_change_tool
     ]
 
-    # Agent'i başlat
+    # Initilaizing the agent
     agent_executor = initialize_agent(
         tools=tools,
         llm=llm,

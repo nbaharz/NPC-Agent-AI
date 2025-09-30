@@ -3,6 +3,7 @@ from pathlib import Path
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from embeddings import get_embedding_fn
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,8 +12,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 VECTORSTORE_DIR = os.getenv("LORE_VECTORSTORE_DIR", "./vectorstore/lore")
 COLLECTION_NAME = "lore_entries"
 
-def get_embedding_fn():
-    return OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
 
 def build_lore_vectorstore(lore_dir: str = "./data/lore"):
     """Lore dosyalarini yükle, temizle, chunk'la ve Chroma'ya ekle."""

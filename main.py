@@ -7,8 +7,8 @@ from database import models  # noqa: F401  # tabloların create_all için import
 from api import memory as memory_api
 from pydantic import BaseModel
 from agent_setup import setup_agent  
+from api import chat as chat_api
 from api import world_state as world_api
-
 
 
 # --- DB tablolarını oluştur ---
@@ -31,26 +31,4 @@ app.add_middleware(
 # --- Routers (hafıza arayüzü) ---
 app.include_router(memory_api.router, prefix="/api/memory", tags=["memory"])
 
-# --- Healthcheck ---
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-# Chat endpoint 
-class ChatInput(BaseModel):
-    message: str  # gelen JSON şeması
-
-# Agent ve kısa-özet hafıza yükle (modüler)
-agent_executor, memory = setup_agent()
-
-@app.post("/chat")
-async def chat(input: ChatInput):
-    # Not: run senkron; yüksek trafikte ThreadPoolExecutor ya da asyncio uyumlu çağrı düşünebilirsin
-    response = agent_executor.run(input.message)
-
-    # Güncel hafıza özetini dışa aktar (istersen path'i /logs altına al)
-    summary_text = getattr(memory, "buffer", "")
-    with open("elara_summary.txt", "w", encoding="utf-8") as f:
-        f.write(summary_text or "")
-
-    return {"response": response}
+app.include_router(chat_api.router,  prefix="/api/chat", tags=["chat"] )
