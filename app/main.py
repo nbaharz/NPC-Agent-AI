@@ -6,10 +6,12 @@ from app.database.db_session import Base, engine
 from app.api import memory as memory_api
 from pydantic import BaseModel
 from agent_core.agent_setup import setup_agent  
-from app.api import chat as chat_api
-from app.api import world_state as world_api
-from app.api import inventory as inventory_api
-
+from app.api import (
+    chat as chat_api,
+    world_state as world_api,
+    inventory as inventory_api,
+    user as user_api
+)
 
 # --- Create DB Tables ---
 Base.metadata.create_all(bind=engine)
@@ -37,3 +39,4 @@ app.include_router(world_api.router, prefix="/api", tags=["world"])
 app.include_router(inventory_api.router, prefix="/api", tags=["inventory"])
 app.include_router(memory_api.router, prefix="/api/memory", tags=["memory"])
 app.include_router(chat_api.router,  prefix="/api", tags=["chat"] )
+app.include_router(user_api.router,  prefix="/api/user", tags=["user"] )
