@@ -52,7 +52,7 @@ class Inventory(Base):
     __tablename__ = "inventory"
     id = Column(String, primary_key=True)
     user_id = Column(String, index=True)
-    item_id = Column(String, index=True)
+    item_name = Column(String, index=True)
     qty = Column(Integer, default=1)
     meta = json_column()
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

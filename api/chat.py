@@ -10,7 +10,7 @@ class ChatInput(BaseModel):
 # Agent ve kısa-özet hafıza yükle (modüler)
 agent_executor, memory = setup_agent()
 
-@router.post("")
+@router.post("/chat")
 async def chat(input: ChatInput):
     # Not: run senkron; yüksek trafikte ThreadPoolExecutor ya da asyncio uyumlu çağrı düşünebilirsin
     response = agent_executor.run(input.message)

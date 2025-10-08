@@ -3,7 +3,7 @@ from pathlib import Path
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from embeddings import get_embedding_fn
+from retrievers import embeddings
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,7 +15,7 @@ COLLECTION_NAME = "lore_entries"
 
 def build_lore_vectorstore(lore_dir: str = "./data/lore"):
     """Lore dosyalarini yükle, temizle, chunk'la ve Chroma'ya ekle."""
-    embed_fn = get_embedding_fn()
+    embed_fn = embeddings.get_embedding_fn()
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
 
     texts = []
@@ -50,7 +50,7 @@ def build_lore_vectorstore(lore_dir: str = "./data/lore"):
 def get_lore_vectorstore():
     return Chroma(
         collection_name=COLLECTION_NAME,
-        embedding_function=get_embedding_fn(),
+        embedding_function=embeddings.get_embedding_fn(),
         persist_directory=VECTORSTORE_DIR
     )
 
