@@ -1,5 +1,6 @@
 # database/models.py
 # daha sonra bunlarin her biri ayri .pylar olarak yazilabilir
+# id uuid yapilabilirdi.
 from sqlalchemy import Column, String, DateTime, Text, Integer, Float, Enum, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -65,6 +66,13 @@ class Reputation(Base):
     score = Column(Float, default=0.0)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
+class User(Base):
+    __tablename__ = "users"
+    id = Column(String, primary_key=True)
+    email = Column(String, unique=True, nullable=False, index=True)
+    password = Column(String, nullable=False)
+    user_name = Column(String, unique=True, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 # Quest models 
 class QuestStatus(str, enum.Enum):

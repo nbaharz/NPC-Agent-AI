@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database.db_session import Base
 from database.models import Inventory
-from agent_setup import setup_agent
+from agent_core.agent_setup import setup_agent
 
 
 @pytest.fixture(scope="function")

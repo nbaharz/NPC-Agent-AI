@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 from sqlalchemy.orm import Session
 
-from database.db_session import get_db
-from memory.long_term import add_long_term_memory, search_long_term_memory
+from app.database.db_session import get_db
+from agent_core.memory.long_term import add_long_term_memory, search_long_term_memory
 
 router = APIRouter()
 

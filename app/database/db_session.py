@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./database/app.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app/database/app.db")
 
 # SQLite için check_same_thread kapatalım (FastAPI çoklu thread kullanabilir)
 engine = create_engine(

@@ -2,8 +2,8 @@
 import os
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
-from database.models import LongTermMemory
-from retrievers.embeddings import get_embedding_fn
+from app.database.models import LongTermMemory
+from agent_core.retrievers.embeddings import get_embedding_fn
 from langchain_community.vectorstores import Chroma
 
 #--- We should periodically clean the vector store to avoid excessive data growth and potential storage issues.---

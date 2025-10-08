@@ -1,4 +1,4 @@
-from agent_setup import setup_agent
+from agent_core.agent_setup import setup_agent
 from pydantic import BaseModel
 from fastapi import APIRouter
 

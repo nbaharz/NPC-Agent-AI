@@ -1,7 +1,7 @@
 from langchain.tools import tool
 from sqlalchemy.orm import Session
-from database.models import WorldState, Inventory, Reputation
-from database.db_session import SessionLocal
+from app.database.models import WorldState, Inventory, Reputation
+from app.database.db_session import SessionLocal
 import uuid
 
 # DB session helper

@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationSummaryMemory
-from tools.lore_search import lore_search_tool
-from tools.world_state_tool import get_world_state_tool, set_world_state_tool, reputation_change_tool
-from tools.inventory_tool import inventory_add_tool, inventory_remove_tool
-from prompts.promptTemplate import elara_prompt 
+from agent_core.tools.lore_search import lore_search_tool
+from agent_core.tools.world_state_tool import get_world_state_tool, set_world_state_tool, reputation_change_tool
+from agent_core.tools.inventory_tool import inventory_add_tool, inventory_remove_tool
+from agent_core.prompts.promptTemplate import elara_prompt 
 
 load_dotenv()
 
