@@ -1,0 +1,23 @@
+{
+  "main_goal": "Complete the ancient map by finding its three missing pieces.",
+  "chapters": [
+    {
+      "id": 1,
+      "title": "The Western Woods",
+      "hint": "Rumors say a fragment lies deep in the Western Woods.",
+      "required_items": ["torch", "compass"]
+    },
+    {
+      "id": 2,
+      "title": "Ruins of the East",
+      "hint": "Ancient ruins guard another fragment.",
+      "required_items": ["rope", "sword"]
+    },
+    {
+      "id": 3,
+      "title": "Frozen Peaks",
+      "hint": "The final piece rests in the Frozen Peaks.",
+      "required_items": ["warm cloak", "pickaxe"]
+    }
+  ]
+}

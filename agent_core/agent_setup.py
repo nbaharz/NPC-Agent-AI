@@ -7,7 +7,10 @@ from langchain.memory import ConversationSummaryMemory
 from agent_core.tools.lore_search import lore_search_tool
 from agent_core.tools.world_state_tool import get_world_state_tool, set_world_state_tool, reputation_change_tool
 from agent_core.tools.inventory_tool import inventory_add_tool, inventory_remove_tool
+from agent_core.tools.quest_tool import get_quest_tool
 from agent_core.prompts.promptTemplate import elara_prompt 
+from langchain.schema import SystemMessage
+
 
 load_dotenv()
 
@@ -26,16 +29,18 @@ def setup_agent():
         return_messages=True
     )
 
-    if os.path.exists("prompts/elara_summary.txt"):
-        with open("elara_summary.txt", "r", encoding="utf-8") as f:
-            memory.buffer = f.read()
+    # if os.path.exists("prompts/elara_summary.txt"):
+    #     with open("elara_summary.txt", "r", encoding="utf-8") as f:
+    #         memory.buffer = f.read()
 
-    
+    quest_tool = get_quest_tool(llm)
+
     tools = [
         lore_search_tool,
         get_world_state_tool, set_world_state_tool,
         inventory_add_tool, inventory_remove_tool,
-        reputation_change_tool
+        reputation_change_tool,
+        quest_tool,
     ]
 
     # Initilaizing the agent
@@ -45,9 +50,11 @@ def setup_agent():
         agent=AgentType.OPENAI_FUNCTIONS,
         memory=memory,
         verbose=True,
-        agent_kwargs={
-            "system_message": elara_prompt.format(chat_history="{chat_history}", input="{input}")
-        }
+       agent_kwargs={
+        "system_message": SystemMessage(
+            content=elara_prompt.format(chat_history="{chat_history}", input="{input}")
+        )
+}
     )
 
     return agent_executor, memory
