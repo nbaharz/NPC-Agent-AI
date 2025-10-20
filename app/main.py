@@ -4,8 +4,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database.db_session import Base, engine
 from app.api import memory as memory_api
-from pydantic import BaseModel
-from agent_core.agent_setup import setup_agent  
 from app.api import (
     chat as chat_api,
     world_state as world_api,
@@ -23,7 +21,6 @@ app = FastAPI(title="FRP NPC Agent API")
 origins = [
     "http://localhost:3000",  # Next.js dev server
     "http://127.0.0.1:3000",
-    
 ]
 
 # --- CORS (gerekirse prod'da domain ile sınırla) ---
@@ -34,7 +31,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
- 
+
+# --- Create DB Tables ---
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
+
 app.include_router(world_api.router, prefix="/api", tags=["world"])
 app.include_router(inventory_api.router, prefix="/api", tags=["inventory"])
 app.include_router(memory_api.router, prefix="/api/memory", tags=["memory"])

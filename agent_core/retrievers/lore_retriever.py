@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from agent_core.retrievers import embeddings

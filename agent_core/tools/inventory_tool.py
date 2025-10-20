@@ -22,7 +22,7 @@ def inventory_add_tool(user_id: str, item_id: str, qty: int = 1, meta: dict = No
     Örnek:
         "1 adet key eklendi."
     """
-    user_id = "u1"
+    user_id = "u1" #ornek kullanici
     db = SessionLocal()
     row = db.query(Inventory).filter(Inventory.user_id == user_id, Inventory.item_id == item_id).first()
     if row:

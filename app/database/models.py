@@ -19,8 +19,6 @@ def json_column():
         return Column(JSONB)
     return Column(JSONType)
 
-
-
 # USER
 class User(Base):
     __tablename__ = "users"
@@ -40,6 +38,7 @@ class User(Base):
 
 
 # MEMORY
+# Chromdb vektor halini tutarken sqllite databasede ham text halini gormek iyi olur.
 class LongTermMemory(Base):
     __tablename__ = "long_term_memory"
 
@@ -76,7 +75,6 @@ class Inventory(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="inventory")
-
 
 
 # REPUTATION
