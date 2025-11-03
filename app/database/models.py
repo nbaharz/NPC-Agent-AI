@@ -108,7 +108,6 @@ class Quest(Base):
     meta_json = Column(JSON, default=dict)
 
     user = relationship("User", back_populates="quests")
-    steps = relationship("QuestStep", back_populates="quest", cascade="all, delete-orphan")
 
 #CHAT MESSAGES
 class ChatMessage(Base):

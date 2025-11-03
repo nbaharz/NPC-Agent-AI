@@ -1,5 +1,4 @@
 from app.database.models import ChatMessage
-from datetime import datetime
 
 class ChatRepository:
     def __init__(self, db):

@@ -4,8 +4,8 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database.db_session import Base
-from database.models import Inventory
+from app.database.db_session import Base
+from app.database.models import Inventory
 from agent_core.agent_setup import setup_agent
 
 
@@ -42,7 +42,7 @@ def test_agent_inventory_add(test_db):
     db = test_db()
     row = db.query(Inventory).first()
     assert row is not None, "❌ No inventory record found in the database."
-    assert row.item_id.lower() in ["sword", "kılıç"]
+    assert row.id.lower() in ["sword", "kılıç"]
     assert row.qty == 1
 
     db.close()

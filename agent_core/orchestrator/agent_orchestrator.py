@@ -4,20 +4,20 @@ from sqlalchemy.orm import Session
 from app.database.models import ChatMessage
 from agent_core.agent_setup import setup_agent
 from agent_core.memory.long_term import add_long_term_memory
-from app.repositories.chat_repository import add_message
+from app.repositories.chat_repository import ChatRepository
 
 class AgentOrchestrator:
     def __init__(self, db:Session):
         self.db = db
         self.active_sessions = {} #dict
     
-    def _get_or_create_session(self, user_id:str):
+    def get_or_create_session(self, user_id:str):
         """Creates an active session for each user"""
         if user_id not in self.active_sessions:
             self.active_sessions[user_id] = {"session_start": datetime.utcnow()}
         return self.active_sessions[user_id]  
 
-    async def _generate_response(self, agent, user_input:str):
+    async def generate_response(self, agent, user_input:str):
         """Generates the response of LLM"""
         try:
             response = await agent.ainvoke({"input":user_input})
@@ -31,13 +31,14 @@ class AgentOrchestrator:
     async def handle_interaction(self, user_id:str, user_input:str, context=None):
         """Main interaction process"""
         try:
-            session_context = self._get_or_create_session(user_id)
+            session_context = self.get_or_create_session(user_id)
             agent, memory = setup_agent(user_id= user_id, db= self.db)
-            response_text = self.generate_response
+            response_text = await self.generate_response(agent, user_input)
 
-            # Add messages to ChatMessage table
-            add_message(self.db, user_id,"elara", "user", user_input)
-            add_message(self.db, user_id,"elara", "npc", response_text)
+              # Use repository pattern correctly
+            repo = ChatRepository(self.db)
+            repo.add_message(user_id, "elara", "user", user_input)
+            repo.add_message(user_id, "elara", "npc", response_text)
           
             # Add long term memory
             add_long_term_memory(
@@ -45,10 +46,9 @@ class AgentOrchestrator:
                 user_id=user_id,
                 npc_id="elara",
                 text=f"USER: {user_input}\nNPC: {response_text}",
-                metadata={"type": "interaction", "timestamp": str(datetime.utcnow())}
+                tags={"type": "interaction"}
             )
 
-            # 6️⃣ Yanıtı döndür
             return response_text
         
         except Exception as e:
@@ -71,6 +71,5 @@ add_message() (repository)
 add_long_term_memory()
 ↓
 Return the response to frontend
-
 
 '''

@@ -6,13 +6,13 @@ import uuid
 
 
 @tool("inventory_add", return_direct=False)
-def inventory_add_tool(user_id: str, item_id: str, qty: int = 1, meta: dict = None) -> str:
+def inventory_add_tool(user_id: str, item_name: str, qty: int = 1, meta: dict = None) -> str:
     """
     Kullanicinin envanterine yeni bir eşya ekler veya mevcut miktarini artirir.
 
     Args:
         user_id (str): Oyuncunun kimliği.
-        item_id (str): Eklenecek eşyanin kimliği.
+        item_name (str): Eklenecek eşyanin kimliği.
         qty (int, optional): Eşya miktari. Varsayilan = 1.
         meta (dict, optional): Eşya ile ilgili ek bilgiler (örn. nadirlik, özellikler).
 
@@ -22,17 +22,17 @@ def inventory_add_tool(user_id: str, item_id: str, qty: int = 1, meta: dict = No
     Örnek:
         "1 adet key eklendi."
     """
-    user_id = "u1" #ornek kullanici
+    user_id = Inventory.user_id
     db = SessionLocal()
-    row = db.query(Inventory).filter(Inventory.user_id == user_id, Inventory.item_id == item_id).first()
+    row = db.query(Inventory).filter(Inventory.user_id == user_id, Inventory.item_name == item_name).first()
     if row:
         row.qty += qty
     else:
-        row = Inventory(id=str(uuid.uuid4()), user_id=user_id, item_id=item_id, qty=qty, meta=meta or {})
+        row = Inventory(id=str(uuid.uuid4()), user_id=user_id, item_name=item_name, qty=qty, meta=meta or {})
         db.add(row)
     db.commit()
     db.close()
-    return f"{qty} adet {item_id} eklendi."
+    return f"{qty} adet {item_name} eklendi."
 
 
 @tool("inventory_remove", return_direct=False)
@@ -53,7 +53,7 @@ def inventory_remove_tool(user_id: str, item_id: str, qty: int = 1) -> str:
         "1 adet key cikarildi."
     """
     db = SessionLocal()
-    row = db.query(Inventory).filter(Inventory.user_id == user_id, Inventory.item_id == item_id).first()
+    row = db.query(Inventory).filter(Inventory.user_id == user_id, Inventory.id == item_id).first()
     if not row:
         db.close()
         return "Eşya bulunamadi."
