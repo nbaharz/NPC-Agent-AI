@@ -59,12 +59,12 @@ def setup_agent(user_id: str = None, db: Session = None):
     ]
 
     # Initilaizing the agent
-    agent_executor = initialize_agent(
+    agent = initialize_agent(
         tools=tools,
         llm=llm,
         agent=AgentType.OPENAI_FUNCTIONS,
         memory=memory,
-        verbose=True,
+        verbose=False,
         agent_kwargs={
         "system_message": SystemMessage(
             content=elara_prompt.format(chat_history="{chat_history}",
@@ -74,4 +74,4 @@ def setup_agent(user_id: str = None, db: Session = None):
         }
     )
 
-    return agent_executor, memory
+    return agent, memory
