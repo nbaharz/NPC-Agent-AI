@@ -14,5 +14,6 @@ class UserResponse(BaseModel): #this should return jwt token later
     username: str
     email: str
 
-    class Config:
-        orm_mode = True
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str

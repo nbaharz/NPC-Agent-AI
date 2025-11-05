@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any, List
 from sqlalchemy.orm import Session
 
 from app.database.db_session import get_db
-from agent_core.memory.long_term import add_long_term_memory, search_long_term_memory
+from agent_core.core.memory.long_term import add_long_term_memory, search_long_term_memory
 
 router = APIRouter()
 

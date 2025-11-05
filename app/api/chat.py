@@ -2,16 +2,17 @@ from pydantic import BaseModel
 from fastapi import APIRouter ,Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.db_session import get_db
-from agent_core.orchestrator.agent_orchestrator import AgentOrchestrator
+from app.core.security import get_current_user
+from agent_core.core.orchestrator.agent_orchestrator import AgentOrchestrator
 
 
 router = APIRouter()
 class ChatInput(BaseModel):
-    user_id: str
     message: str
 
 @router.post("/chat")
-async def chat(input: ChatInput, db:Session = Depends(get_db)):
+async def chat(input: ChatInput, db:Session = Depends(get_db),
+               current_user= Depends(get_current_user)):
     """Recevies the user input, and returns the response by the orchestrator"""
     try:
         orchestrator = AgentOrchestrator(db)
@@ -25,3 +26,4 @@ async def chat(input: ChatInput, db:Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+#NOT: Depends() fonksiyonu => Bu endpoint şu fonksiyona bağımlı, önce onu çalıştır, sonucunu bana ver.

@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from app.database.models import ChatMessage
 from agent_core.agent_setup import setup_agent
-from agent_core.memory.long_term import add_long_term_memory
+from agent_core.core.memory.long_term import add_long_term_memory
 from app.repositories.chat_repository import ChatRepository
 
 class AgentOrchestrator:
