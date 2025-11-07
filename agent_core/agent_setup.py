@@ -4,14 +4,14 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationSummaryMemory
-from agent_core.tools.lore_search import lore_search_tool
-from agent_core.tools.world_state_tool import get_world_state_tool, set_world_state_tool, reputation_change_tool
-from agent_core.tools.inventory_tool import inventory_add_tool, inventory_remove_tool
-from agent_core.tools.quest_tool import get_quest_tool
-from agent_core.prompts.npcPromptTemplate import elara_prompt 
+from agent_core.core.tools.lore_search import lore_search_tool
+from agent_core.core.tools.world_state_tool import get_world_state_tool, set_world_state_tool, reputation_change_tool
+from agent_core.core.tools.inventory_tool import inventory_add_tool, inventory_remove_tool
+from agent_core.core.tools.quest_tool import get_quest_tool
+from agent_core.core.prompts.npcPromptTemplate import elara_prompt 
 from langchain.schema import SystemMessage
 from sqlalchemy.orm import Session
-from agent_core.memory.long_term import search_long_term_memory
+from agent_core.core.memory.long_term import search_long_term_memory
 
 
 load_dotenv()

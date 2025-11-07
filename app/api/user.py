@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from app.database.db_session import get_db
 from app.services.user_service import UserService
 from app.schemas.user_schema import UserCreate, UserLogin, UserResponse, TokenResponse
-from app.core.security import create_access_token
-from app.core.config import ACCES_TOKEN_EXPIRE_MINUTES
+from app.services.token_service import create_access_token
+from app.config import ACCES_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
 
 router = APIRouter()

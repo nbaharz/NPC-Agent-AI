@@ -1,6 +1,6 @@
 # tools/lore_search.py
 from langchain.tools import tool
-from agent_core.retrievers.lore_retriever import search_lore
+from agent_core.core.retrievers.lore_retriever import search_lore
 
 @tool("lore_search", return_direct=False)
 def lore_search_tool(query: str) -> str:

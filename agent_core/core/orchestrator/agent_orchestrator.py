@@ -1,75 +1,109 @@
 import traceback
 from datetime import datetime
 from sqlalchemy.orm import Session
-from app.database.models import ChatMessage
 from agent_core.agent_setup import setup_agent
 from agent_core.core.memory.long_term import add_long_term_memory
 from app.repositories.chat_repository import ChatRepository
 
-class AgentOrchestrator:
-    def __init__(self, db:Session):
-        self.db = db
-        self.active_sessions = {} #dict
-    
-    def get_or_create_session(self, user_id:str):
-        """Creates an active session for each user"""
-        if user_id not in self.active_sessions:
-            self.active_sessions[user_id] = {"session_start": datetime.utcnow()}
-        return self.active_sessions[user_id]  
 
-    async def generate_response(self, agent, user_input:str):
-        """Generates the response of LLM"""
+class AgentOrchestrator:
+    def __init__(self, db: Session):
+        self.db = db
+        self.active_sessions = {}  # {user_id: {"messages": [], "session_start": datetime}}
+
+    def get_or_create_session(self, user_id: str):
+        """Create or get the user's current active session"""
+        if user_id not in self.active_sessions:
+            self.active_sessions[user_id] = {
+                "messages": [],
+                "session_start": datetime.utcnow()
+            }
+        return self.active_sessions[user_id]
+
+    async def generate_response(self, agent, user_input: str):
+        """Generate the LLM response"""
         try:
-            response = await agent.ainvoke({"input":user_input})
-            if isinstance(response,dict):
-                return response.get("output","")
+            response = await agent.ainvoke({"input": user_input})
+            if isinstance(response, dict):
+                return response.get("output", "")
             return str(response)
-        except Exception as e :
-            print(f"Response error {e}")
-            return "Cannot process your request right now."
-    
-    async def handle_interaction(self, user_id:str, user_input:str, context=None):
-        """Main interaction process"""
+        except Exception as e:
+            print(f"[Response Error] {e}")
+            return "I’m having trouble processing that right now."
+
+    async def handle_interaction(self, user_id: str, user_input: str, context=None):
+        """Handle user-NPC interaction (one message exchange)"""
         try:
             session_context = self.get_or_create_session(user_id)
-            agent, memory = setup_agent(user_id= user_id, db= self.db)
+            agent, memory = setup_agent(user_id=user_id, db=self.db)
             response_text = await self.generate_response(agent, user_input)
 
-              # Use repository pattern correctly
             repo = ChatRepository(self.db)
             repo.add_message(user_id, "elara", "user", user_input)
             repo.add_message(user_id, "elara", "npc", response_text)
-          
-            # Add long term memory
-            add_long_term_memory(
-                db=self.db,
-                user_id=user_id,
-                npc_id="elara",
-                text=f"USER: {user_input}\nNPC: {response_text}",
-                tags={"type": "interaction"}
-            )
+
+            # Save message pair in in-memory session buffer
+            session_context["messages"].append((user_input, response_text))
 
             return response_text
-        
+
         except Exception as e:
             print(f"[Agent Error] {e}")
             traceback.print_exc()
             return "Something went wrong during the interaction."
-        
 
+    async def end_session(self, user_id: str):
+        """
+        Summarize the session and store it in long-term memory.
+        Called when the user finishes talking or leaves.
+        """
+        try:
+            if user_id not in self.active_sessions:
+                return "No active session to summarize."
 
-'''
-Flow
-Frontend → POST /api/agent/chat
-↓
-AgentOrchestrator.handle_interaction()
-↓
-setup_agent() → agent.ainvoke()
-↓
-add_message() (repository)
-↓
-add_long_term_memory()
-↓
-Return the response to frontend
+            session_data = self.active_sessions.pop(user_id)
+            messages = session_data["messages"]
 
-'''
+            if not messages:
+                return "No messages to summarize."
+
+            # Build conversation text for summarization
+            conversation_text = "\n".join(
+                [f"USER: {u}\nNPC: {n}" for u, n in messages]
+            )
+
+            agent, _ = setup_agent(user_id=user_id, db=self.db)
+            summary_prompt = (
+                "Summarize the following conversation between USER and NPC in 3-4 sentences. "
+                "Focus on the main events, user actions, and key decisions.\n\n"
+                f"{conversation_text}\n\n"
+                "Produce a concise summary of what happened in this session."
+            )
+
+            summary_resp = await agent.ainvoke({"input": summary_prompt})
+            if isinstance(summary_resp, dict):
+                summary_text = summary_resp.get("output", "").strip()
+            else:
+                summary_text = str(summary_resp).strip()
+
+            # Fallback in case of empty summary
+            if not summary_text:
+                summary_text = "[Session Summary Unavailable]"
+
+            # Store full session and its summary in long-term memory
+            add_long_term_memory(
+                db=self.db,
+                user_id=user_id,
+                npc_id="elara",
+                text=conversation_text,  # raw session transcript
+                tags={"type": "session_summary"},
+                index_text=summary_text   # summarized embedding text
+            )
+
+            print(f"[Memory] Session summary stored for user {user_id}")
+            return summary_text
+
+        except Exception as e:
+            print(f"[Session End Error] {e}")
+            traceback.print_exc()
+            return "Failed to summarize session."

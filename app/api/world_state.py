@@ -20,11 +20,6 @@ def list_world_state(db: Session = Depends(get_db)):
     rows = db.query(WorldState).all()
     return _rows(rows)
 
-@router.get("/inventory/{user_id}")
-def list_inventory(user_id: str, db: Session = Depends(get_db)):
-    rows = db.query(Inventory).filter(Inventory.user_id == user_id).all()
-    return _rows(rows)
-
 @router.get("/reputation/{user_id}")
 def list_reputation(user_id: str, db: Session = Depends(get_db)):
     rows = db.query(Reputation).filter(Reputation.user_id == user_id).all()

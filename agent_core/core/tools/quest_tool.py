@@ -1,5 +1,5 @@
 from langchain.tools import tool
-from agent_core.prompts.questPromptTemplate import prompt
+from agent_core.core.prompts.questPromptTemplate import prompt
 import json
 
 def get_quest_tool(llm):

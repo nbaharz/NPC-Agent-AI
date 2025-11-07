@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from app.database.models import LongTermMemory
-from agent_core.retrievers.embeddings import get_embedding_fn
+from agent_core.core.retrievers.embeddings import get_embedding_fn
 from langchain_community.vectorstores import Chroma
 
 #--- We should periodically clean the vector store to avoid excessive data growth and potential storage issues.---
@@ -25,18 +25,19 @@ def add_long_term_memory(
     user_id: str,
     npc_id: str,
     text: str,
-    tags: Optional[Dict[str, Any]] = None
+    tags: Optional[Dict[str, Any]] = None,
+    index_text: Optional[str] = None  # <-- yeni parametre
 ) -> str:
-    """Metni SQLite'a yaz, vektörü Chroma'ya ekle. memory_id döndür."""
+    """Metni SQLite'a yaz, vektörü Chroma'ya ekle. index_text verildiyse onu indexle, aksi halde text'i indexle. memory_id döndür."""
     row = LongTermMemory(user_id=user_id, npc_id=npc_id, text=text, tags=tags or {})
     db.add(row)
     db.commit()
     db.refresh(row)
 
     vs = _get_vectorstore()
-    # metadata ile memory_id, user_id, npc_id yaz
+    text_to_index = index_text or text
     vs.add_texts(
-        [text],
+        [text_to_index],
         metadatas=[{"memory_id": row.id, "user_id": user_id, "npc_id": npc_id, **(tags or {})}],
         ids=[row.id],
     )

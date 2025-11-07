@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from agent_core.retrievers import embeddings
+from agent_core.core.retrievers import embeddings
 from dotenv import load_dotenv
 
 load_dotenv()
